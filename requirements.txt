@@ -1,0 +1,7 @@
+# 医疗内涵质控核心运行依赖
+fastapi==0.115.6
+uvicorn==0.32.1
+gradio==4.44.0
+requests==2.31.0
+pyyaml==6.0.1
+openai==1.64.0

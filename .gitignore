@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 项目特定
+2.26需求沟通/
+docs/
+形式质控结果报文-注释版本/
+*.docx
+*.log
+.env
+
+# 临时文件
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db

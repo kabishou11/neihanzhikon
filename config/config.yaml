@@ -1,0 +1,46 @@
+# 医疗内涵质控核心配置
+
+llm:
+  # openai / qwen / local / ollama / modelscope
+  client_type: "modelscope"
+
+  modelscope:
+    # 建议通过环境变量 MODELSCOPE_API_KEY 覆盖
+    api_key: "ms-a63c15b3-101b-435d-a61b-d26a38f8997c"
+    model: "Qwen/Qwen3.5-35B-A3B"
+    base_url: "https://api-inference.modelscope.cn/v1"
+    temperature: 0.1
+    max_tokens: 1024   # 质控判断只需要短输出，降低等待时间
+    timeout: 90        # 单次LLM调用超时（秒）
+
+  openai:
+    api_key: "sk-xxx"
+    model: "gpt-3.5-turbo"
+    base_url: "https://api.openai.com/v1"
+    temperature: 0.1
+    max_tokens: 2000
+
+  qwen:
+    api_key: "sk-xxx"
+    model: "qwen-turbo"
+    base_url: "https://dashscope.aliyuncs.com/api/v1"
+    temperature: 0.1
+    max_tokens: 2000
+
+  local:
+    base_url: "http://localhost:8000"
+    model: "qwen-30b"
+    temperature: 0.1
+    max_tokens: 2000
+
+  ollama:
+    base_url: "http://localhost:11434"
+    model: "qwen:7b"
+    temperature: 0.1
+
+fastapi_qc:
+  # LLM规则并发线程上限（30B模型建议2-3，避免API限流）
+  max_workers: 2
+  # 规则插件（可空）
+  plugin_modules:
+    - "fastapi_qc.plugins.cardiology_plugin"

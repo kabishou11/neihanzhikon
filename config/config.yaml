@@ -6,7 +6,7 @@ llm:
 
   modelscope:
     # 建议通过环境变量 MODELSCOPE_API_KEY 覆盖
-    api_key: "ms-a63c15b3-101b-435d-a61b-d26a38f8997c"
+    api_key: "your apikey"
     model: "Qwen/Qwen3.5-35B-A3B"
     base_url: "https://api-inference.modelscope.cn/v1"
     temperature: 0.1

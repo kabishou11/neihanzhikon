@@ -8,10 +8,10 @@
 import json
 import os
 import sys
-import time
 from pathlib import Path
 from typing import Generator
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -21,28 +21,14 @@ SRC_DIR = ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-
-def _load_env_file(env_path: Path) -> None:
-    if not env_path.exists():
-        return
-    for line in env_path.read_text(encoding="utf-8").splitlines():
-        text = line.strip()
-        if not text or text.startswith("#") or "=" not in text:
-            continue
-        key, value = text.split("=", 1)
-        key = key.strip()
-        value = value.strip().strip('"').strip("'")
-        if key and key not in os.environ:
-            os.environ[key] = value
-
-
-_load_env_file(ROOT / ".env")
+# 加载环境变量
+load_dotenv(ROOT / ".env")
 
 from fastapi_qc import (
     QualityControlRequest,
     QualityControlResponse,
     QualityControlDebugResponse,
-    create_service_from_config,
+    create_service_from_env,
 )
 
 
@@ -63,7 +49,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-service = create_service_from_config(str(ROOT / "config" / "config.yaml"))
+service = create_service_from_env()
 
 
 @app.get("/api/v1/health", summary="健康检查")

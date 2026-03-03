@@ -27,9 +27,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. 配置 LLM
-
-**方式一：环境变量（推荐，敏感信息不入库）**
+### 2. 配置环境变量
 
 复制 `.env.example` 为 `.env`：
 
@@ -37,26 +35,28 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-编辑 `.env`，填入 API Key：
+编辑 `.env`，填入必要配置：
 
 ```bash
+# LLM 客户端类型
+LLM_CLIENT_TYPE=modelscope
+
+# ModelScope API Key（必填）
 MODELSCOPE_API_KEY=ms-your-api-key-here
+
+# 可选：覆盖默认值
+MODELSCOPE_MODEL=Qwen/Qwen3.5-35B-A3B
+MODELSCOPE_MAX_TOKENS=1024
+MODELSCOPE_TIMEOUT=90
+
+# 并发线程数
+MAX_WORKERS=2
 ```
 
-**方式二：直接修改配置文件（不推荐）**
-
-编辑 `config/config.yaml`：
-
-```yaml
-llm:
-  modelscope:
-    api_key: "ms-your-api-key"  # 不推荐硬编码
-```
-
-**配置说明：**
-- `config.yaml` 定义所有 LLM 参数（model、temperature、timeout 等）
-- `.env` 只存储敏感信息（API Key）
-- 环境变量优先级高于配置文件
+**支持的 LLM 后端：**
+- `modelscope` - ModelScope API（推荐）
+- `openai` - OpenAI API
+- `local` - 本地模型（vLLM）
 
 ### 3. 启动服务
 
@@ -147,7 +147,7 @@ python web_fastapi_verify.py
 |------|------|--------|------|
 | `llmMode` | string | `"auto"` | `live`（真实调用模型）/ `mock`（启发式规则）/ `auto`（自动选择） |
 | `maxLlmRules` | int | `200` | 最大执行 LLM 规则数（建议验证时设为 5-20，生产时设为全量） |
-| `maxWorkers` | int | `2` | 并发线程数（30B 模型建议 2-3） |
+| `maxWorkers` | int | 从 `.env` 读取 | 并发线程数（30B 模型建议 2-3） |
 | `llmRetry` | int | `0` | LLM 失败重试次数（30B 模型建议 0，避免超时叠加） |
 | `fallbackToHeuristic` | bool | `false` | LLM 失败时是否回退启发式规则 |
 | `maxContextRecordsPerTable` | int | `6` | 每个病历表最多传入 LLM 的记录数 |
@@ -161,10 +161,10 @@ neihanzhikon/
 ├── fastapi_app.py              # FastAPI 主应用
 ├── web_fastapi_verify.py       # Gradio 流式验证台
 ├── requirements.txt            # Python 依赖
-├── config/
-│   └── config.yaml            # LLM 配置
+├── .env.example                # 环境变量模板
+├── .env                        # 环境变量配置（不入库）
 ├── src/
-│   ├── llm_client.py          # LLM 客户端（ModelScope/OpenAI/Qwen/Local）
+│   ├── llm_client.py          # LLM 客户端（ModelScope/OpenAI/Local）
 │   └── fastapi_qc/
 │       ├── service.py         # 质控核心服务
 │       ├── schemas.py         # 请求/响应模型

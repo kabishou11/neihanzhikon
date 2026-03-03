@@ -6,20 +6,14 @@
 """
 
 import json
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, Generator, List, Optional, Tuple
 
-import yaml
-
 from .constants import DOC_HINTS, LEVEL_LABELS
 from .heuristic_engine import HeuristicRuleEngine
 from .schemas import QualityControlRequest, QualityControlResponse, ViolationOut
-
-
-def _load_yaml(path: str) -> Dict[str, Any]:
-    with open(path, "r", encoding="utf-8") as file:
-        return yaml.safe_load(file) or {}
 
 
 def _safe_json(text: str) -> Dict[str, Any]:
@@ -594,25 +588,46 @@ class MedicalQualityControlService:
         return delta
 
 
-def create_service_from_config(config_path: str = "config/config.yaml") -> MedicalQualityControlService:
+def create_service_from_env() -> MedicalQualityControlService:
+    """从环境变量创建服务实例"""
     llm_client: Optional[Any] = None
-    max_workers = 4
-    plugin_modules: List[str] = []
+
+    # 从环境变量读取配置
+    client_type = os.getenv("LLM_CLIENT_TYPE", "modelscope")
+    max_workers = int(os.getenv("MAX_WORKERS", "2"))
+    plugin_modules_str = os.getenv("PLUGIN_MODULES", "fastapi_qc.plugins.cardiology_plugin")
+    plugin_modules = [m.strip() for m in plugin_modules_str.split(",") if m.strip()]
+
     try:
-        cfg = _load_yaml(config_path)
-        llm_cfg = cfg.get("llm", {})
-        client_type = llm_cfg.get("client_type", "")
-        client_config = llm_cfg.get(client_type, {})
-        fastapi_cfg = cfg.get("fastapi_qc", {})
-
-        max_workers = int(fastapi_cfg.get("max_workers", max_workers))
-        plugin_modules = list(fastapi_cfg.get("plugin_modules", []))
-
-        if client_type and client_config:
-            from llm_client import LLMClientFactory
-
-            llm_client = LLMClientFactory.create_client(client_type, client_config)
-    except Exception:
+        if client_type == "modelscope":
+            from llm_client import ModelScopeClient
+            llm_client = ModelScopeClient(
+                api_key=os.getenv("MODELSCOPE_API_KEY", ""),
+                model=os.getenv("MODELSCOPE_MODEL", "Qwen/Qwen3.5-35B-A3B"),
+                base_url=os.getenv("MODELSCOPE_BASE_URL", "https://api-inference.modelscope.cn/v1"),
+                temperature=float(os.getenv("MODELSCOPE_TEMPERATURE", "0.1")),
+                max_tokens=int(os.getenv("MODELSCOPE_MAX_TOKENS", "1024")),
+                timeout=int(os.getenv("MODELSCOPE_TIMEOUT", "90")),
+            )
+        elif client_type == "openai":
+            from llm_client import OpenAIClient
+            llm_client = OpenAIClient(
+                api_key=os.getenv("OPENAI_API_KEY", ""),
+                model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
+                base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+                temperature=float(os.getenv("OPENAI_TEMPERATURE", "0.1")),
+                max_tokens=int(os.getenv("OPENAI_MAX_TOKENS", "2000")),
+            )
+        elif client_type == "local":
+            from llm_client import LocalModelClient
+            llm_client = LocalModelClient(
+                base_url=os.getenv("LOCAL_BASE_URL", "http://localhost:8000"),
+                model=os.getenv("LOCAL_MODEL", "qwen-30b"),
+                temperature=float(os.getenv("LOCAL_TEMPERATURE", "0.1")),
+                max_tokens=int(os.getenv("LOCAL_MAX_TOKENS", "2000")),
+            )
+    except Exception as exc:
+        print(f"Warning: Failed to create LLM client: {exc}")
         llm_client = None
 
     return MedicalQualityControlService(

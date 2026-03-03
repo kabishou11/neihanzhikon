@@ -1,0 +1,61 @@
+# 质量保障配置文件
+# Medical Quality Assurance Configuration
+# 注意：敏感配置已移至环境变量，此文件仅保留默认值
+
+# 准确性保障配置
+accuracy:
+  # 启用验证
+  enable_validation: true
+  # 启用一致性检查（第二阶段实现）
+  enable_consistency_check: false
+  # 启用交叉验证（第二阶段实现）
+  enable_cross_validation: false
+
+# 置信度配置
+confidence:
+  # 最小置信度阈值（可通过环境变量 QA_MIN_CONFIDENCE 覆盖）
+  min_threshold: 0.7
+
+  # 置信度权重配置
+  weights:
+    llm_confidence: 0.4      # LLM自身置信度权重
+    validation_score: 0.3    # 验证得分权重
+    data_completeness: 0.2   # 数据完整性权重
+    rule_complexity: 0.1     # 规则复杂度权重
+
+  # 置信度等级阈值
+  levels:
+    high: 0.85    # 高置信度阈值
+    medium: 0.65  # 中置信度阈值
+    # 低于medium即为低置信度
+
+# 可解释性配置
+explainability:
+  # 启用可解释性增强
+  enable: true
+  # 包含内容片段
+  include_content_snippets: true
+  # 包含推理链
+  include_reasoning_chain: true
+  # 最大内容片段长度（字符数）
+  max_snippet_length: 200
+
+# 健壮性配置
+robustness:
+  # 最大重试次数（可通过环境变量 QA_MAX_RETRIES 覆盖）
+  max_retries: 3
+  # 重试退避系数
+  retry_backoff: 2
+  # 超时时间（秒，可通过环境变量 QA_TIMEOUT 覆盖）
+  timeout: 30
+
+# 人工复核配置
+review:
+  # 启用人工复核
+  enable: false
+  # 需要复核的置信度阈值（低于此值需要人工复核）
+  confidence_threshold: 0.6
+  # 复核优先级
+  priority_rules:
+    - high_deduct_score  # 高扣分规则
+    - low_confidence     # 低置信度结果

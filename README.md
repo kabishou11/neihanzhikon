@@ -163,6 +163,8 @@ neihanzhikon/
 ├── requirements.txt            # Python 依赖
 ├── .env.example                # 环境变量模板
 ├── .env                        # 环境变量配置（不入库）
+├── config/
+│   └── quality_assurance.yaml # 质量保障配置（默认值）
 ├── src/
 │   ├── llm_client.py          # LLM 客户端（ModelScope/OpenAI/Local）
 │   └── fastapi_qc/

@@ -29,23 +29,34 @@ pip install -r requirements.txt
 
 ### 2. 配置 LLM
 
-编辑 `config/config.yaml`，配置 ModelScope API Key：
+**方式一：环境变量（推荐，敏感信息不入库）**
+
+复制 `.env.example` 为 `.env`：
+
+```bash
+cp .env.example .env
+```
+
+编辑 `.env`，填入 API Key：
+
+```bash
+MODELSCOPE_API_KEY=ms-your-api-key-here
+```
+
+**方式二：直接修改配置文件（不推荐）**
+
+编辑 `config/config.yaml`：
 
 ```yaml
 llm:
-  client_type: "modelscope"
   modelscope:
-    api_key: "ms-your-api-key"
-    model: "Qwen/Qwen3.5-35B-A3B"
-    max_tokens: 1024
-    timeout: 90
+    api_key: "ms-your-api-key"  # 不推荐硬编码
 ```
 
-或通过环境变量：
-
-```bash
-export MODELSCOPE_API_KEY="ms-your-api-key"
-```
+**配置说明：**
+- `config.yaml` 定义所有 LLM 参数（model、temperature、timeout 等）
+- `.env` 只存储敏感信息（API Key）
+- 环境变量优先级高于配置文件
 
 ### 3. 启动服务
 

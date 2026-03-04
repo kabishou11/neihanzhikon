@@ -83,58 +83,6 @@ class OpenAIClient(BaseLLMClient):
         return result["choices"][0]["message"]["content"]
 
 
-class QwenClient(BaseLLMClient):
-    """通义千问客户端（阿里云）"""
-
-    def __init__(
-        self,
-        api_key: str,
-        model: str = "qwen-turbo",
-        base_url: str = "https://dashscope.aliyuncs.com/api/v1",
-        temperature: float = 0.1,
-        max_tokens: int = 2000
-    ):
-        self.api_key = api_key
-        self.model = model
-        self.base_url = base_url
-        self.temperature = temperature
-        self.max_tokens = max_tokens
-
-    def call(self, prompt: str, **kwargs) -> str:
-        """调用通义千问API"""
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-
-        data = {
-            "model": kwargs.get("model", self.model),
-            "input": {
-                "messages": [
-                    {"role": "system", "content": "你是一个专业的医疗质控专家。"},
-                    {"role": "user", "content": prompt}
-                ]
-            },
-            "parameters": {
-                "temperature": kwargs.get("temperature", self.temperature),
-                "max_tokens": kwargs.get("max_tokens", self.max_tokens),
-                "result_format": "message"
-            }
-        }
-
-        response = requests.post(
-            f"{self.base_url}/services/aigc/text-generation/generation",
-            headers=headers,
-            json=data,
-            timeout=60
-        )
-
-        response.raise_for_status()
-        result = response.json()
-
-        return result["output"]["choices"][0]["message"]["content"]
-
-
 class LocalModelClient(BaseLLMClient):
     """本地模型客户端（支持vLLM、Ollama等）"""
 
@@ -177,42 +125,6 @@ class LocalModelClient(BaseLLMClient):
         result = response.json()
 
         return result["choices"][0]["message"]["content"]
-
-
-class OllamaClient(BaseLLMClient):
-    """Ollama客户端（本地运行）"""
-
-    def __init__(
-        self,
-        base_url: str = "http://localhost:11434",
-        model: str = "qwen:30b",
-        temperature: float = 0.1
-    ):
-        self.base_url = base_url
-        self.model = model
-        self.temperature = temperature
-
-    def call(self, prompt: str, **kwargs) -> str:
-        """调用Ollama API"""
-        data = {
-            "model": kwargs.get("model", self.model),
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": kwargs.get("temperature", self.temperature)
-            }
-        }
-
-        response = requests.post(
-            f"{self.base_url}/api/generate",
-            json=data,
-            timeout=120
-        )
-
-        response.raise_for_status()
-        result = response.json()
-
-        return result["response"]
 
 
 class ModelScopeClient(BaseLLMClient):
@@ -364,7 +276,7 @@ class LLMClientFactory:
         创建LLM客户端
 
         Args:
-            client_type: 客户端类型（openai/qwen/local/ollama/modelscope）
+            client_type: 客户端类型（openai/local/modelscope）
             config: 配置参数
 
         Returns:
@@ -372,79 +284,16 @@ class LLMClientFactory:
         """
         if client_type == "openai":
             return OpenAIClient(**config)
-        elif client_type == "qwen":
-            return QwenClient(**config)
         elif client_type == "local":
             return LocalModelClient(**config)
-        elif client_type == "ollama":
-            return OllamaClient(**config)
         elif client_type == "modelscope":
             return ModelScopeClient(**config)
         else:
             raise ValueError(f"Unsupported client type: {client_type}")
 
 
-# 配置示例
-EXAMPLE_CONFIGS = {
-    "openai": {
-        "api_key": "sk-xxx",
-        "model": "gpt-3.5-turbo",
-        "temperature": 0.1,
-        "max_tokens": 2000
-    },
-    "qwen": {
-        "api_key": "sk-xxx",
-        "model": "qwen-turbo",
-        "temperature": 0.1,
-        "max_tokens": 2000
-    },
-    "local": {
-        "base_url": "http://localhost:8000",
-        "model": "qwen-30b",
-        "temperature": 0.1,
-        "max_tokens": 2000
-    },
-    "ollama": {
-        "base_url": "http://localhost:11434",
-        "model": "qwen:30b",
-        "temperature": 0.1
-    },
-    "modelscope": {
-        "api_key": "ms-xxx",
-        "model": "Qwen/Qwen3.5-35B-A3B",
-        "base_url": "https://api-inference.modelscope.cn/v1",
-        "temperature": 0.1,
-        "max_tokens": 2000
-    }
-}
-
-
 if __name__ == "__main__":
     # 测试代码
-    # 使用Ollama客户端（需要先启动Ollama服务）
-    try:
-        client = LLMClientFactory.create_client("ollama", {
-            "base_url": "http://localhost:11434",
-            "model": "qwen:7b",
-            "temperature": 0.1
-        })
+    print("LLM客户端模块已加载")
+    print("支持的客户端类型: openai, local, modelscope")
 
-        prompt = """请判断以下病历是否完整：
-患者：张三，男，45岁
-主诉：腹痛3天
-现病史：患者3天前无明显诱因出现腹痛...
-
-请输出JSON格式：
-{
-    "violated": true/false,
-    "description": "描述",
-    "confidence": 0.95
-}
-"""
-
-        response = client.call(prompt)
-        print("Response:", response)
-
-    except Exception as e:
-        print(f"Error: {e}")
-        print("请确保Ollama服务已启动，并且已下载相应模型")

@@ -14,6 +14,7 @@ from typing import Any, Dict, Generator, List, Optional, Tuple
 from .constants import DOC_HINTS, LEVEL_LABELS
 from .heuristic_engine import HeuristicRuleEngine
 from .schemas import QualityControlRequest, QualityControlResponse, ViolationOut
+from .qa_config import get_qa_config
 
 
 def _safe_json(text: str) -> Dict[str, Any]:
@@ -48,6 +49,7 @@ class MedicalQualityControlService:
         self.heuristic_engine = HeuristicRuleEngine()
         self.plugin_modules = plugin_modules or []
         self.plugin_status = self.heuristic_engine.load_plugins(self.plugin_modules)
+        self.qa_config = get_qa_config()
 
     def check(self, request: QualityControlRequest) -> QualityControlResponse:
         response, _ = self._check_internal(request)
@@ -191,6 +193,7 @@ class MedicalQualityControlService:
             "execution": llm_debug,
             "llmClientDelta": self._diff_llm_stats(llm_stats_before, llm_stats_after),
             "pluginStatus": self.plugin_status,
+            "qaConfig": self.qa_config.to_dict(),
         }
         return response, debug
 
@@ -606,7 +609,7 @@ def create_service_from_env() -> MedicalQualityControlService:
                 model=os.getenv("MODELSCOPE_MODEL", "Qwen/Qwen3.5-35B-A3B"),
                 base_url=os.getenv("MODELSCOPE_BASE_URL", "https://api-inference.modelscope.cn/v1"),
                 temperature=float(os.getenv("MODELSCOPE_TEMPERATURE", "0.1")),
-                max_tokens=int(os.getenv("MODELSCOPE_MAX_TOKENS", "1024")),
+                max_tokens=int(os.getenv("MODELSCOPE_MAX_TOKENS", "32768")),
                 timeout=int(os.getenv("MODELSCOPE_TIMEOUT", "90")),
                 top_p=float(os.getenv("MODELSCOPE_TOP_P", "0.8")),
             )

@@ -8,7 +8,8 @@
       "Bash(cd:*)",
       "Bash(cat:*)",
       "Bash(cd /f/2work/neihanzhikon && python -c \"\nimport sys, os\nsys.path.insert\\(0, 'src'\\)\nos.environ['MODELSCOPE_API_KEY'] = 'test-key'\nos.environ['LLM_CLIENT_TYPE'] = 'modelscope'\nos.environ['MAX_WORKERS'] = '2'\n\nfrom fastapi_qc import create_service_from_env\nsvc = create_service_from_env\\(\\)\nprint\\(f'[OK] Service created'\\)\nprint\\(f'  llm_client: {type\\(svc.llm_client\\).__name__}'\\)\nprint\\(f'  max_workers: {svc.default_max_workers}'\\)\nprint\\(f'  plugins: {len\\(svc.plugin_modules\\)}'\\)\n\" 2>&1)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(cd /f/2work/neihanzhikon && python -c \"\nimport sys, os\nsys.path.insert\\(0, 'src'\\)\nos.environ['MODELSCOPE_API_KEY'] = 'test-key'\nos.environ['MODELSCOPE_TOP_P'] = '0.8'\n\nfrom llm_client import ModelScopeClient\nclient = ModelScopeClient\\(api_key='test', top_p=0.8\\)\nprint\\(f'[OK] ModelScopeClient 创建成功'\\)\nprint\\(f'  temperature: {client.temperature}'\\)\nprint\\(f'  top_p: {client.top_p}'\\)\nprint\\(f'  max_tokens: {client.max_tokens}'\\)\nprint\\(f'  timeout: {client.timeout}'\\)\n\" 2>&1)"
     ]
   }
 }

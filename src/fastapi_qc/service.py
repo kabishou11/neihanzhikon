@@ -352,19 +352,19 @@ class MedicalQualityControlService:
             except Exception:
                 pass
 
+        # 符合 Qwen3.5-35B 最佳实践：简洁明确的 Prompt，末尾明确输出格式
         return (
-            "你是资深医疗病历内涵质控专家，请严格按照规则对病历进行质控判断。\n\n"
+            "你是医疗质控专家，判断病历是否违反质控规则。\n\n"
             "【质控规则】\n"
             f"{rule_json}\n\n"
             "【病历上下文】\n"
             f"{context_json}\n\n"
             "【判断要求】\n"
-            "1. 仔细阅读病历内容，判断是否违反上述规则\n"
-            "2. violated=true 表示存在缺陷，violated=false 表示无缺陷\n"
-            "3. description 需引用病历原文说明违规点\n"
-            "4. itemInfo 说明具体命中的记录位置（如：第1条记录、首次病程记录等）\n"
-            "5. suggestion 针对本患者给出具体可执行的整改建议\n\n"
-            "【输出格式】只输出JSON，不输出任何其他文字：\n"
+            "1. 判断是否违反规则：violated=true（存在缺陷）或 violated=false（无缺陷）\n"
+            "2. description：引用病历原文说明违规点\n"
+            "3. itemInfo：说明具体位置（如：第1条记录、首次病程记录）\n"
+            "4. suggestion：针对本患者给出具体整改建议（20-100字）\n\n"
+            "请仅输出 JSON 格式，不输出其他文字：\n"
             f"{json.dumps(output_schema, ensure_ascii=False)}\n"
         )
 
@@ -608,6 +608,7 @@ def create_service_from_env() -> MedicalQualityControlService:
                 temperature=float(os.getenv("MODELSCOPE_TEMPERATURE", "0.1")),
                 max_tokens=int(os.getenv("MODELSCOPE_MAX_TOKENS", "1024")),
                 timeout=int(os.getenv("MODELSCOPE_TIMEOUT", "90")),
+                top_p=float(os.getenv("MODELSCOPE_TOP_P", "0.8")),
             )
         elif client_type == "openai":
             from llm_client import OpenAIClient

@@ -226,6 +226,7 @@ class ModelScopeClient(BaseLLMClient):
         temperature: float = 0.1,
         max_tokens: int = 32768,
         timeout: int = 90,
+        top_p: float = 0.8,
     ):
         self.api_key = os.getenv("MODELSCOPE_API_KEY", api_key)
         self.model = os.getenv("MODELSCOPE_MODEL", model)
@@ -233,6 +234,7 @@ class ModelScopeClient(BaseLLMClient):
         self.temperature = float(os.getenv("MODELSCOPE_TEMPERATURE", str(temperature)))
         self.max_tokens = int(os.getenv("MODELSCOPE_MAX_TOKENS", str(max_tokens)))
         self.timeout = int(os.getenv("MODELSCOPE_TIMEOUT", str(timeout)))
+        self.top_p = float(os.getenv("MODELSCOPE_TOP_P", str(top_p)))
         self.client = None
         if OpenAI is not None:
             self.client = OpenAI(
@@ -255,7 +257,7 @@ class ModelScopeClient(BaseLLMClient):
         start = time.perf_counter()
         self._stats["call_total"] += 1
         messages = kwargs.get("messages") or [
-            {"role": "system", "content": "你是一个专业的医疗质控专家。"},
+            {"role": "system", "content": "你是医疗质控专家。"},
             {"role": "user", "content": prompt}
         ]
         try:
@@ -265,6 +267,7 @@ class ModelScopeClient(BaseLLMClient):
                     messages=messages,
                     temperature=kwargs.get("temperature", self.temperature),
                     max_tokens=kwargs.get("max_tokens", self.max_tokens),
+                    top_p=kwargs.get("top_p", self.top_p),
                     stream=False,
                 )
                 content = response.choices[0].message.content
@@ -281,6 +284,7 @@ class ModelScopeClient(BaseLLMClient):
                 "messages": messages,
                 "temperature": kwargs.get("temperature", self.temperature),
                 "max_tokens": kwargs.get("max_tokens", self.max_tokens),
+                "top_p": kwargs.get("top_p", self.top_p),
                 "stream": False,
             }
             response = requests.post(
@@ -307,7 +311,7 @@ class ModelScopeClient(BaseLLMClient):
         if self.client is None:
             raise RuntimeError("未安装 openai 包，当前环境不支持ModelScope SDK流式")
         messages = kwargs.get("messages") or [
-            {"role": "system", "content": "你是一个专业的医疗质控专家。"},
+            {"role": "system", "content": "你是医疗质控专家。"},
             {"role": "user", "content": prompt}
         ]
         response = self.client.chat.completions.create(
@@ -315,6 +319,7 @@ class ModelScopeClient(BaseLLMClient):
             messages=messages,
             temperature=kwargs.get("temperature", self.temperature),
             max_tokens=kwargs.get("max_tokens", self.max_tokens),
+            top_p=kwargs.get("top_p", self.top_p),
             stream=True,
         )
         for chunk in response:

@@ -1,6 +1,6 @@
 # 医疗内涵质控系统 FastAPI
 
-基于 30B 大模型的医疗病历内涵质控系统，支持形式质控与 LLM 规则质控合并输出，提供 FastAPI 接口与流式实时验证台。
+基于 30B 大模型的医疗病历内涵质控系统，支持形式质控与 LLM 规则质控合并输出，提供 FastAPI 接口、Gradio 界面与流式实时验证。
 
 ## 核心特性
 
@@ -9,7 +9,10 @@
 - **并发优化**：多线程并发执行 LLM 规则，提升吞吐量
 - **智能回退**：LLM 失败时可选启发式规则兜底
 - **插件扩展**：支持按科室/文书类型动态加载规则插件
-- **可视化验证**：Gradio 实时展示每条规则执行状态和违规结果
+- **双界面支持**：
+  - **FastAPI**：RESTful API 接口，支持流式/非流式
+  - **Gradio**：可视化界面，质控测试 + 医疗问答助手
+- **质量保障**：集成 quality_assurance.yaml 配置，支持置信度、重试、超时等参数
 
 ## 快速开始
 
@@ -46,7 +49,7 @@ MODELSCOPE_API_KEY=ms-your-api-key-here
 
 # 可选：覆盖默认值
 MODELSCOPE_MODEL=Qwen/Qwen3.5-35B-A3B
-MODELSCOPE_MAX_TOKENS=1024
+MODELSCOPE_MAX_TOKENS=32768
 MODELSCOPE_TIMEOUT=90
 
 # 并发线程数
@@ -60,6 +63,7 @@ MAX_WORKERS=2
 
 ### 3. 启动服务
 
+**方式一：FastAPI 后端服务**
 ```bash
 # 启动 FastAPI 服务
 uvicorn fastapi_app:app --host 0.0.0.0 --port 8000
@@ -68,15 +72,20 @@ uvicorn fastapi_app:app --host 0.0.0.0 --port 8000
 # http://localhost:8000/docs
 ```
 
-### 4. 启动验证台
-
+**方式二：Gradio 可视化界面（推荐）**
 ```bash
-# 启动 Gradio 验证台（流式实时版）
+# 启动 Gradio 验证台
 python web_fastapi_verify.py
 
-# 访问验证台
+# 访问界面
 # http://localhost:7861
 ```
+
+**Gradio 界面功能：**
+- ✅ **质控测试**：支持流式/非流式切换，实时对比输出
+- ✅ **医疗问答助手**：流式对话，支持医疗知识和质控规则咨询
+- ✅ **参数调节**：Temperature、Max Tokens 等
+- ✅ **快速测试**：内置示例问题和测试数据
 
 ## 接口说明
 

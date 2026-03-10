@@ -215,7 +215,7 @@ def run_qc_check(
         return f"`[{bar}] {pct}%  {d}/{t}`"
 
     try:
-        with requests.post(target_url, json=payload, stream=True, timeout=(10, 600)) as resp:
+        with requests.post(target_url, json=payload, stream=True, timeout=(10, 1800)) as resp:
             resp.raise_for_status()
             for raw_line in resp.iter_lines():
                 if not raw_line:

@@ -296,8 +296,10 @@ class MedicalQualityControlService:
         refine_suggestion: bool,
     ) -> Dict[str, Any]:
         context = self._build_rule_context(rule, tables, max_records, max_chars)
+
+        # 如果规则需要的表没有传入，跳过规则
         if context.get("_not_applicable"):
-            return {"violated": False, "_engine": "not_applicable"}
+            return {"violated": False, "_engine": "not_applicable", "_reason": context.get("reason", "")}
 
         last_error: Optional[Exception] = None
         for attempt in range(retries + 1):
@@ -402,16 +404,16 @@ class MedicalQualityControlService:
             _, inferred_table, _, _ = self._infer_doc_hint(rule.get("ruleKey", ""))
             source_keys = [inferred_table]
 
+        # 检查规则需要的表是否存在（是否传入）
+        # 如果表不存在（key不在tables中），说明没有传入，标记为not_applicable
+        table_exists = any(table_key in tables for table_key in source_keys)
+        if not table_exists:
+            return {"_not_applicable": True, "sourceDocKeys": source_keys, "reason": "required_tables_not_provided"}
+
         context_tables: Dict[str, List[Dict[str, Any]]] = {}
-        non_empty_count = 0
         for table_key in source_keys:
             records = tables.get(table_key, [])
-            if records:
-                non_empty_count += 1
             context_tables[table_key] = self._compress_records(records, max_records=max_records, max_chars=max_chars)
-
-        if non_empty_count == 0:
-            return {"_not_applicable": True, "sourceDocKeys": source_keys}
 
         return {
             "sourceDocKeys": source_keys,

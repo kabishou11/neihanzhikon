@@ -96,8 +96,8 @@ python web_fastapi_verify.py
 **请求体：**
 ```json
 {
-  "patientList": {
-    "patient_id": "P2026TEST002",
+  "visitList": {
+    "visit_id": "P2026TEST002",
     "record_id": "06b0442c0ffe11f1af39902e16e9744b"
   },
   "qc_rules": {
@@ -117,7 +117,7 @@ python web_fastapi_verify.py
 **响应体：**
 ```json
 {
-  "patientId": "P2026TEST002",
+  "visitId": "P2026TEST002",
   "recordId": "06b0442c0ffe11f1af39902e16e9744b",
   "qcType": "TERMINAL",
   "qcStatus": "TO_RECTIFY",
@@ -135,7 +135,7 @@ python web_fastapi_verify.py
 返回 JSON Lines 格式，每完成一条规则立即推送：
 
 ```json
-{"event":"start","total":20,"existing":3,"mode":"live","patientId":"P2026TEST002"}
+{"event":"start","total":20,"existing":3,"mode":"live","visitId":"P2026TEST002"}
 {"event":"rule_done","done":1,"total":20,"progress":4,"ruleKey":"LLM_RYJL_609","violated":true,"engine":"live","violation":{...}}
 {"event":"rule_done","done":2,"total":20,"progress":9,"ruleKey":"LLM_RYJL_611","violated":false,"engine":"live"}
 ...

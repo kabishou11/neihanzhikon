@@ -1,6 +1,6 @@
 CREATE TABLE `dz_consent` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `consent_type` varchar(50) NOT NULL COMMENT '同意书类型（SURGERY/TRANSFUSION/ANESTHESIA/SPECIAL_TREATMENT/OTHER 等）',
   `target_procedure` varchar(255) DEFAULT NULL COMMENT '对应手术/操作/治疗名称',
   `sign_time` varchar(32) DEFAULT NULL COMMENT '签署时间',
@@ -13,12 +13,12 @@ CREATE TABLE `dz_consent` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_consent_patient_type` (`patient_id`,`consent_type`,`sign_time`)
+  KEY `idx_consent_patient_type` (`visit_id`,`consent_type`,`sign_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='知情同意书表';
 
 CREATE TABLE `dz_death` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `death_time` varchar(32) DEFAULT NULL COMMENT '死亡时间',
   `immediate_cause` varchar(255) DEFAULT NULL COMMENT '直接死亡原因',
   `underlying_cause` varchar(255) DEFAULT NULL COMMENT '根本死亡原因',
@@ -32,13 +32,13 @@ CREATE TABLE `dz_death` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_death_patient` (`patient_id`),
+  KEY `idx_death_patient` (`visit_id`),
   KEY `idx_death_time` (`death_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='死亡及死亡讨论结构化信息表';
 
 CREATE TABLE `dz_diagnosis` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `diag_type` varchar(30) NOT NULL COMMENT '诊断类型（ADMISSION/FINAL/DISCHARGE/COMPLICATION/TCM 等）',
   `diag_seq` varchar(10) NOT NULL DEFAULT '1' COMMENT '同一类型下排序号（1为主诊断）',
   `icd_code` varchar(50) DEFAULT NULL COMMENT 'ICD 编码',
@@ -50,13 +50,13 @@ CREATE TABLE `dz_diagnosis` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_diag_patient` (`patient_id`,`diag_type`,`diag_seq`),
+  KEY `idx_diag_patient` (`visit_id`,`diag_type`,`diag_seq`),
   KEY `idx_diag_code` (`icd_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='诊断表';
 
 CREATE TABLE `dz_document` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `doc_type` varchar(50) NOT NULL COMMENT '文书类型（ADMISSION/FIRST_COURSE/SUPERIOR_FIRST/DAILY_COURSE/STAGE_SUMMARY/TRANSFER_IN/TRANSFER_OUT/CONSULTATION/OP_NOTE/ANES_NOTE/DISCHARGE_RECORD/DEATH_RECORD/DEATH_DISCUSSION/TRANSFUSION_RECORD/EMERGENCY_RECORD/SHIFT_RECORD 等）',
   `doc_title` varchar(255) DEFAULT NULL COMMENT '文书标题',
   `doc_status` varchar(20) DEFAULT NULL COMMENT '文书状态（DRAFT/SUBMITTED/SIGNED 等）',
@@ -73,8 +73,8 @@ CREATE TABLE `dz_document` (
   `printed_flag` varchar(1) NOT NULL DEFAULT '0' COMMENT '是否已打印归档（1是，0否）',
   `remark` varchar(500) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`),
-  KEY `idx_doc_patient_type` (`patient_id`,`doc_type`,`title_time`),
-  KEY `idx_doc_patient_sign` (`patient_id`,`first_sign_time`)
+  KEY `idx_doc_patient_type` (`visit_id`,`doc_type`,`title_time`),
+  KEY `idx_doc_patient_sign` (`visit_id`,`first_sign_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='电子病历文书主表';
 
 
@@ -97,7 +97,7 @@ CREATE TABLE `dz_document_section` (
 
 CREATE TABLE `dz_exam_report` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `exam_type` varchar(50) NOT NULL COMMENT '检查类别（CT/MRI/US/XRAY/PATHOLOGY/NUCLEAR/ENDOSCOPY 等）',
   `exam_item_code` varchar(64) DEFAULT NULL COMMENT '检查项目代码',
   `exam_item_name` varchar(255) NOT NULL COMMENT '检查项目名称',
@@ -113,14 +113,14 @@ CREATE TABLE `dz_exam_report` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_exam_patient_type` (`patient_id`,`exam_type`,`exam_time`),
+  KEY `idx_exam_patient_type` (`visit_id`,`exam_type`,`exam_time`),
   KEY `idx_exam_item` (`exam_item_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='检查报告表';
 
 
 CREATE TABLE `dz_home_page` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `id_card` varchar(32) DEFAULT NULL COMMENT '身份证号（首页记载）',
   `name` varchar(100) DEFAULT NULL COMMENT '姓名（首页）',
   `gender_code` varchar(1) DEFAULT NULL COMMENT '性别（首页）',
@@ -139,13 +139,13 @@ CREATE TABLE `dz_home_page` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_home_patient` (`patient_id`)
+  KEY `idx_home_patient` (`visit_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='病案首页信息表';
 
 
 CREATE TABLE `dz_lab_result` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `sample_no` varchar(64) DEFAULT NULL COMMENT '标本号/样本号',
   `test_item_code` varchar(64) NOT NULL COMMENT '检验项目代码',
   `test_item_name` varchar(255) NOT NULL COMMENT '检验项目名称',
@@ -162,14 +162,14 @@ CREATE TABLE `dz_lab_result` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_lab_patient_item` (`patient_id`,`test_item_code`),
-  KEY `idx_lab_patient_time` (`patient_id`,`report_time`)
+  KEY `idx_lab_patient_item` (`visit_id`,`test_item_code`),
+  KEY `idx_lab_patient_time` (`visit_id`,`report_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='检验结果表';
 
 
 CREATE TABLE `dz_operation` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `operation_no` varchar(50) DEFAULT NULL COMMENT '手术序号',
   `operation_date` varchar(32) DEFAULT NULL COMMENT '手术开始时间',
   `operation_end` varchar(32) DEFAULT NULL COMMENT '手术结束时间',
@@ -191,13 +191,13 @@ CREATE TABLE `dz_operation` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_operation_patient` (`patient_id`,`operation_date`)
+  KEY `idx_operation_patient` (`visit_id`,`operation_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='手术及操作记录表';
 
 
 CREATE TABLE `dz_order` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `order_no` varchar(64) NOT NULL COMMENT '医嘱号/组号',
   `order_type` varchar(50) NOT NULL COMMENT '医嘱类型（DRUG/EXAM/TREATMENT/NURSING/DIET/OTHER）',
   `order_class` varchar(50) DEFAULT NULL COMMENT '医嘱大类（如 ANTIBIOTIC/CHEMO/RADIOTHERAPY/CT/MRI/PATHOLOGY 等，便于规则过滤）',
@@ -216,14 +216,14 @@ CREATE TABLE `dz_order` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_order_patient_time` (`patient_id`,`start_time`),
-  KEY `idx_order_patient_type` (`patient_id`,`order_type`,`order_class`)
+  KEY `idx_order_patient_time` (`visit_id`,`start_time`),
+  KEY `idx_order_patient_type` (`visit_id`,`order_type`,`order_class`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='住院医嘱表';
 
 
 CREATE TABLE `dz_patient` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '病案号/院内患者唯一编号',
+  `visit_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '病案号/院内患者唯一编号',
   `id_card` varchar(32) DEFAULT NULL COMMENT '身份证号',
   `name` varchar(100) NOT NULL COMMENT '姓名',
   `gender_code` varchar(1) DEFAULT NULL COMMENT '性别代码（M/F/U等）',
@@ -238,14 +238,14 @@ CREATE TABLE `dz_patient` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_patient_no` (`patient_id`),
+  UNIQUE KEY `uk_patient_no` (`visit_id`),
   KEY `idx_id_card` (`id_card`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='患者主索引表';
 
 
 CREATE TABLE `dz_rescue` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `start_time` varchar(32) NOT NULL COMMENT '抢救开始时间',
   `end_time` varchar(32) DEFAULT NULL COMMENT '抢救结束时间',
   `rescue_process` text COMMENT '抢救经过',
@@ -254,13 +254,13 @@ CREATE TABLE `dz_rescue` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_rescue_patient_time` (`patient_id`,`start_time`)
+  KEY `idx_rescue_patient_time` (`visit_id`,`start_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='抢救记录表';
 
 
 CREATE TABLE `dz_transfer` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `transfer_time` varchar(32) NOT NULL COMMENT '转科时间',
   `from_dept` varchar(100) DEFAULT NULL COMMENT '转出科室',
   `to_dept` varchar(100) DEFAULT NULL COMMENT '转入科室',
@@ -270,13 +270,13 @@ CREATE TABLE `dz_transfer` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_transfer_patient_time` (`patient_id`,`transfer_time`)
+  KEY `idx_transfer_patient_time` (`visit_id`,`transfer_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='转科记录表';
 
 
 CREATE TABLE `dz_transfusion` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `record_time` varchar(32) NOT NULL COMMENT '输血开始时间',
   `end_time` varchar(32) DEFAULT NULL COMMENT '输血结束时间',
   `blood_type` varchar(20) DEFAULT NULL COMMENT 'ABO/Rh 血型',
@@ -290,7 +290,7 @@ CREATE TABLE `dz_transfusion` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_transfusion_patient` (`patient_id`,`record_time`)
+  KEY `idx_transfusion_patient` (`visit_id`,`record_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='输血记录表';
 
 CREATE TABLE `dz_visit` (
@@ -323,7 +323,7 @@ CREATE TABLE `dz_visit` (
 
 CREATE TABLE `dz_vital_sign` (
   `id` varchar(32) NOT NULL COMMENT '主键ID，无横杠UUID',
-  `patient_id` varchar(32) NOT NULL COMMENT '患者ID，关联 dz_patient.id',
+  `visit_id` varchar(32) NOT NULL COMMENT '就诊ID，关联 dz_visit.id',
   `record_time` varchar(32) NOT NULL COMMENT '记录时间',
   `source_type` varchar(50) NOT NULL COMMENT '来源类型（ADMISSION_PHYSICAL/COURSE/NURSING/POSTOP_FIRST 等）',
   `temperature` varchar(10) DEFAULT NULL COMMENT '体温(℃)',
@@ -343,6 +343,6 @@ CREATE TABLE `dz_vital_sign` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_vital_patient_time` (`patient_id`,`record_time`),
-  KEY `idx_vital_source` (`patient_id`,`source_type`,`record_time`)
+  KEY `idx_vital_patient_time` (`visit_id`,`record_time`),
+  KEY `idx_vital_source` (`visit_id`,`source_type`,`record_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='生命体征记录表';

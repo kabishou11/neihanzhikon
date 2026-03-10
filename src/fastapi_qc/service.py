@@ -72,7 +72,7 @@ class MedicalQualityControlService:
         ]
 
         yield {"event": "start", "total": total, "existing": len(existing_violations),
-               "mode": mode, "patientId": request.patientList.patient_id}
+               "mode": mode, "visitId": request.visitList.visit_id}
 
         llm_violations: List[ViolationOut] = []
         max_workers = max(1, min(request.options.maxWorkers or self.default_max_workers, 16))
@@ -151,8 +151,8 @@ class MedicalQualityControlService:
         quality_score = max(0.0, 100.0 - total_deduct)
 
         result = QualityControlResponse(
-            patientId=request.patientList.patient_id,
-            recordId=request.patientList.record_id,
+            visitId=request.visitList.visit_id,
+            recordId=request.visitList.record_id,
             qcType=request.options.qcType,
             qcStatus=qc_status,
             totalDeductScore=total_deduct,
@@ -178,8 +178,8 @@ class MedicalQualityControlService:
         quality_score = max(0.0, 100.0 - total_deduct)
 
         response = QualityControlResponse(
-            patientId=request.patientList.patient_id,
-            recordId=request.patientList.record_id,
+            visitId=request.visitList.visit_id,
+            recordId=request.visitList.record_id,
             qcType=request.options.qcType,
             qcStatus=qc_status,
             totalDeductScore=total_deduct,

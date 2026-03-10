@@ -139,7 +139,7 @@ def run_non_stream(
             "",
             f"| 项目 | 值 |",
             f"|------|-----|",
-            f"| 患者ID | `{result.get('patientId','')}` |",
+            f"| 患者ID | `{result.get('visitId','')}` |",
             f"| 记录ID | `{result.get('recordId','')}` |",
             f"| 质控类型 | {result.get('qcType','')} |",
             f"| 状态 | **{result.get('qcStatus','')}** |",
@@ -233,7 +233,7 @@ def run_qc_check(
                     mode = event.get("mode", llm_mode)
                     log_lines = [
                         f"## 质控执行中…（流式）",
-                        f"- 患者ID: `{event.get('patientId','')}`",
+                        f"- 患者ID: `{event.get('visitId','')}`",
                         f"- 模式: `{mode}`",
                         f"- 形式质控违规: **{existing}** 条",
                         f"- LLM规则总数: **{total}** 条",
@@ -279,7 +279,7 @@ def run_qc_check(
                         "",
                         f"| 项目 | 值 |",
                         f"|------|-----|",
-                        f"| 患者ID | `{result.get('patientId','')}` |",
+                        f"| 患者ID | `{result.get('visitId','')}` |",
                         f"| 记录ID | `{result.get('recordId','')}` |",
                         f"| 质控类型 | {result.get('qcType','')} |",
                         f"| 状态 | **{result.get('qcStatus','')}** |",

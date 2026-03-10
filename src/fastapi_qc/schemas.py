@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 class PatientRef(BaseModel):
     record_id: str = Field(..., description="质控记录唯一ID")
-    patient_id: str = Field(..., description="患者唯一ID")
+    visit_id: str = Field(..., description="患者唯一ID")
 
 
 class LLMRule(BaseModel):
@@ -75,7 +75,7 @@ class RuntimeOptions(BaseModel):
 
 
 class QualityControlRequest(BaseModel):
-    patientList: PatientRef
+    visitList: PatientRef
     qc_rules: QCRules
     options: RuntimeOptions = Field(default_factory=RuntimeOptions)
 
@@ -111,7 +111,7 @@ class QualityControlRequest(BaseModel):
         extra = "allow"
 
     def get_emr_tables(self) -> Dict[str, List[Dict[str, Any]]]:
-        payload = self.model_dump(exclude={"patientList", "qc_rules", "options"}, exclude_none=True)
+        payload = self.model_dump(exclude={"visitList", "qc_rules", "options"}, exclude_none=True)
         return {
             key: value for key, value in payload.items()
             if key.startswith("emr_qc_") and isinstance(value, list)
@@ -135,7 +135,7 @@ class ViolationOut(BaseModel):
 
 
 class QualityControlResponse(BaseModel):
-    patientId: str
+    visitId: str
     recordId: str
     qcType: str
     qcStatus: str

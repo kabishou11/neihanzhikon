@@ -73,8 +73,8 @@ def health() -> dict:
 def check_quality(payload: QualityControlRequest) -> QualityControlResponse:
     try:
         if payload.options.strictMode:
-            if not payload.patientList.patient_id or not payload.patientList.record_id:
-                raise HTTPException(status_code=400, detail="patientList.patient_id/record_id 不能为空")
+            if not payload.visitList.visit_id or not payload.visitList.record_id:
+                raise HTTPException(status_code=400, detail="visitList.visit_id/record_id 不能为空")
         return service.check(payload)
     except HTTPException:
         raise
@@ -94,8 +94,8 @@ def check_quality(payload: QualityControlRequest) -> QualityControlResponse:
 def check_quality_debug(payload: QualityControlRequest) -> QualityControlDebugResponse:
     try:
         if payload.options.strictMode:
-            if not payload.patientList.patient_id or not payload.patientList.record_id:
-                raise HTTPException(status_code=400, detail="patientList.patient_id/record_id 不能为空")
+            if not payload.visitList.visit_id or not payload.visitList.record_id:
+                raise HTTPException(status_code=400, detail="visitList.visit_id/record_id 不能为空")
         result, debug = service.check_with_debug(payload)
         return QualityControlDebugResponse(result=result, debug=debug)
     except HTTPException:
